@@ -36,15 +36,16 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
     public final static int ticksPerRotation = 1440;
     public final static double wheelCircumference = (4 * Math.PI)/12; //circumference in feet
     public final static int driveTimeScalar = 3;
-    public final double lineColorThreshold = 0.04;
-    public double darkFloorValue = 0;
-    double sideSpeed = 0.5;
 
     public void loadObjects() {
         this.vuforia = helper.initVuforia(false, 4);
         imageTargets = helper.loadTargets("RelicVuMark");
         imageTemplate = imageTargets.get(0);
         imageTemplate.setName("VuMarkTemplate");
+    }
+
+    public boolean isRunning() {
+        return opModeIsActive() && !isStopRequested();
     }
 
     /**
