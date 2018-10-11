@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import static org.firstinspires.ftc.teamcode.BILAutonomousCommon.Color.*;
 import static org.firstinspires.ftc.teamcode.BILAutonomousCommon.Side.*;
 
-@Autonomous(name="Autonomous Red", group="BIL")
 public class BILAutonomousRed extends BILAutonomousCommon
 {
     @Override public void runOpMode() throws InterruptedException {
@@ -33,12 +32,12 @@ public class BILAutonomousRed extends BILAutonomousCommon
         telemetry.addData("Blue", robot.colorSensor.blue());
         telemetry.update();
 
-        Color left = detectLeft();
+        Color left = Color.UNKNOWN; // = detectLeft();
 
         if(left == RED) {
-            knockJewelSide(LEFT);
+        //    knockJewelSide(LEFT);
         } else if(left == BLUE) {
-            knockJewelSide(RIGHT);
+        //    knockJewelSide(RIGHT);
         }
         //setDriveMotors(0.5, -0.5, -0.5, 0.5);
 
