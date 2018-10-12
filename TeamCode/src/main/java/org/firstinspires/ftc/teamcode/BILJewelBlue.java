@@ -11,7 +11,6 @@ import static org.firstinspires.ftc.teamcode.BILAutonomousCommon.Color.RED;
  */
 
 
-@Autonomous(name="Jewel Blue", group="BIL")
 public class BILJewelBlue extends BILAutonomousCommon {
 
     @Override public void runOpMode() throws InterruptedException {
@@ -31,7 +30,7 @@ public class BILJewelBlue extends BILAutonomousCommon {
         telemetry.addData("Blue", robot.colorSensor.blue());
         telemetry.update();
 
-        Color left = detectLeft();
+        Color left = Color.UNKNOWN;//detectLeft();
 
         if(left == BLUE) {
             setDriveMotors(0.5,0.5,-0.5,-0.5);

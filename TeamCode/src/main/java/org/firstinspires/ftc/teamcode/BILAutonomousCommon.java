@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.disnodeteam.dogecv.CameraViewDisplay;
-import com.disnodeteam.dogecv.detectors.CryptoboxDetector;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -14,10 +12,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-import com.disnodeteam.dogecv.detectors.JewelDetector;
-
-import static com.disnodeteam.dogecv.detectors.JewelDetector.JewelOrder.*;
-
 /**
  * Created on 1/7/2017 by Mika.
  */
@@ -25,14 +19,11 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
     public BILRobotHardware robot = new BILRobotHardware();
     public ElapsedTime time = new ElapsedTime();
 
-    CryptoboxDetector cDetector = new CryptoboxDetector();
-    JewelDetector jDetector = new JewelDetector();
-
     VuforiaLocalizer vuforia;
     BILVuforiaCommon helper = new BILVuforiaCommon();
     VuforiaTrackables imageTargets;
     VuforiaTrackable imageTemplate;
-
+    //speed is in encoder ticks per second
 
     public enum Color {
         RED, BLUE, UNKNOWN
@@ -42,21 +33,24 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
         LEFT, MIDDLE, RIGHT, UNKNOWN
     }
 
-    public final static int ticksPerRotation = 1440;
-    public final static double wheelCircumference = (4 * Math.PI)/12; //circumference in feet
+    public final static int ticksPerRotation = 538;
+    public final static double wheelDiameter = 4;
+    public final static double wheelCircumference = (wheelDiameter * Math.PI); //circumference in feet
+    public final static double ticksPerFoot = ticksPerRotation/wheelCircumference;
     public final static int driveTimeScalar = 3;
-    public final double lineColorThreshold = 0.04;
-    public double darkFloorValue = 0;
-    double sideSpeed = 0.5;
+
+    MotionProfiler profiler = new MotionProfiler(2500, 1250, ticksPerFoot);
 
     public void loadObjects() {
-        cDetector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
-        jDetector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
-
         this.vuforia = helper.initVuforia(false, 4);
         imageTargets = helper.loadTargets("RelicVuMark");
         imageTemplate = imageTargets.get(0);
         imageTemplate.setName("VuMarkTemplate");
+    }
+
+    public boolean opModeRunning() {
+        idle();
+        return opModeIsActive() && !isStopRequested();
     }
 
     /**
@@ -94,44 +88,17 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
     }
 
     /**
-     * @param power The speed to drive at.
      * @param distance How far the robot should travel (in feet).
      */
-    public void driveDistance(double power, double distance) throws InterruptedException {
-        //reset encoders just to be safe
-        setAllMotorModes(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        //convert input distance in feet to motor ticks
-        int ticks = (int)Math.round(Math.abs(distance/wheelCircumference) * ticksPerRotation);
-
-        //set the target positions for all motors
-        robot.motorFrontLeft.setTargetPosition(ticks);
-        robot.motorBackLeft.setTargetPosition(ticks);
-        robot.motorFrontRight.setTargetPosition(ticks);
-        robot.motorBackRight.setTargetPosition(ticks);
-
-        //tells motors to run until position is reached
-        setAllMotorModes(DcMotor.RunMode.RUN_TO_POSITION);
-
-        //starts the motors
-        setAllDriveMotors(power);
-
-        //waits for motors to finish moving
+    public void driveDistance(double distance) throws InterruptedException {
         time.reset();
-        while(getAllMotorsBusy()) {
-            //if robot has been driving longer then we think necessary we will automatically stop and move on
-            if(time.milliseconds() > Math.abs(ticks/power/driveTimeScalar)) {
-                break;
-            }
-            idle();
+        profiler.start(distance);
+        while(opModeRunning() && profiler.isRunning()) {
+            setAllDriveMotors(profiler.getSpeed(time.seconds()));
         }
 
         //set all motors to 0
         setAllDriveMotors(0);
-
-        //resets encoder values and changes mode back to default
-        setAllMotorModes(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setAllMotorModes(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void driveByTime(double power, int milliseconds) throws InterruptedException {
@@ -140,113 +107,6 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
         while(time.milliseconds() < milliseconds) {
                 idle();
         }
-    }
-
-    /**
-     * @param power The power for the motors.
-     * @param degrees The degrees to turn.
-     */
-    public void turnDegrees(double power, double degrees) throws InterruptedException {
-        //set to run using encoders just in case
-        setAllMotorModes(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        //gets the current heading to refer to
-        int startHeading = robot.gyroSensor.getHeading();
-        if((startHeading + degrees) >= 360){
-            startHeading -= 360;
-        }else if(startHeading + degrees < 0) {
-            startHeading += 360;
-        }
-
-        //if it is more efficient to turn left
-        if(degrees > 180 || degrees < 0) {
-            setDriveMotors(-power, -power, power, power);
-        } else {
-            setDriveMotors(power, power, -power, -power);
-        }
-
-        //if we still need to turn
-        while(Math.abs(Math.abs(startHeading - robot.gyroSensor.getHeading()) - Math.abs(degrees)) > 5) {
-            idle();
-        }
-
-        //stop all the motors
-        setAllDriveMotors(0);
-    }
-
-    public void driveUntilLineOrDistance(double power, double distance) throws InterruptedException {
-        robot.lightSensor.enableLed(true);
-        setAllMotorModes(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        int ticks = (int)Math.round((distance/wheelCircumference) * ticksPerRotation);
-
-        robot.motorFrontLeft.setTargetPosition(ticks);
-        robot.motorBackLeft.setTargetPosition(ticks);
-        robot.motorFrontRight.setTargetPosition(ticks);
-        robot.motorBackRight.setTargetPosition(ticks);
-
-        setAllMotorModes(DcMotor.RunMode.RUN_TO_POSITION);
-
-        setAllDriveMotors(power);
-
-        //waits for motors to finish moving
-        time.reset();
-        while(getAllMotorsBusy() && robot.lightSensor.getLightDetected() < darkFloorValue + lineColorThreshold) {
-            //if robot has been driving longer then we think necessary we will automatically stop and move on
-            if(time.milliseconds() > ticks/power/driveTimeScalar) {
-                break;
-            }
-            idle();
-        }
-
-        //set all motors to 0
-        setAllDriveMotors(0);
-
-        //resets encoder values and changes mode back to default
-        setAllMotorModes(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setAllMotorModes(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-
-    /**
-     * Strafes until a line is detected or enough time has passed. Positive power goes right, negative goes left.
-     * @param power Positive goes right, negative goes left.
-     * @param milliseconds The amount of time to limit to.
-     * @throws InterruptedException
-     */
-    public void strafeUntilLineOrTime(double power, int milliseconds) throws InterruptedException {
-        robot.lightSensor.enableLed(true);
-        setAllMotorModes(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        //makes robot strafe right
-        setDriveMotors(power, -power, -power, power);
-
-        time.reset();
-
-        while(time.milliseconds() < 2000){
-            idle();
-        }
-
-        while(robot.lightSensor.getLightDetected() < darkFloorValue + lineColorThreshold && time.milliseconds() < milliseconds) {
-            idle();
-        }
-
-        setAllDriveMotors(0);
-    }
-
-
-    public void diagonalUntilLineOrTime(int milliseconds) throws InterruptedException {
-        robot.lightSensor.enableLed(true);
-        setAllMotorModes(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        //makes the robot go diagonal
-        setDriveMotors(1, 0.1, 0.1, 1);
-
-        time.reset();
-        while(robot.lightSensor.getLightDetected() < darkFloorValue + lineColorThreshold && time.milliseconds() < milliseconds) {
-            idle();
-        }
-
-        setAllDriveMotors(0);
     }
 
     /**
@@ -267,33 +127,6 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
         double rightSpeed = Range.clip((40 - degreesToTurn * 2)/100, -Math.abs(zTrans)/2000, Math.abs(zTrans)/2000);
         setDriveMotors(leftSpeed, leftSpeed, rightSpeed, rightSpeed);
     }
-
-
-    public void findWhiteLine() throws InterruptedException {
-        if(robot.lightSensor.getLightDetected() < darkFloorValue + lineColorThreshold) {
-            setDriveMotors(sideSpeed, -sideSpeed, -sideSpeed, sideSpeed);
-            time.reset();
-            while(robot.lightSensor.getLightDetected() < darkFloorValue + lineColorThreshold && time.milliseconds() < 1000) {
-                idle();
-            }
-            if(time.milliseconds() < 1000){
-                setAllDriveMotors(0);
-            } else {
-                setDriveMotors(-sideSpeed, sideSpeed, sideSpeed, -sideSpeed);
-                time.reset();
-                while(robot.lightSensor.getLightDetected() < darkFloorValue + lineColorThreshold && time.milliseconds() < 2000) {
-                    idle();
-                }
-            }
-            setAllDriveMotors(0);
-        }
-    }
-
-
-    public void getDarkFloorValue() {
-
-    }
-
 
     public void moveToImage(VuforiaTrackable target, BILVuforiaCommon helper) throws InterruptedException {
         boolean inFrontOfImage = false;
@@ -316,34 +149,6 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
         }
     }
 
-    public void driveBetweenBeacons(int turnDegrees) throws InterruptedException
-    {
-        int initialTurnDegrees, finalTurnDegrees;
-        if(turnDegrees > 0)
-        {
-            initialTurnDegrees = turnDegrees - 5;
-            finalTurnDegrees = 5;
-        }
-        else
-        {
-            initialTurnDegrees = turnDegrees + 5;
-            finalTurnDegrees = -5;
-        }
-
-        //turn 90 degrees the first 85 degrees at 0.5 speed, and to not overshoot the last 5 degrees would be 0.1 speed
-        turnDegrees(0.5, initialTurnDegrees);
-        turnDegrees(0.1, finalTurnDegrees);
-
-        setAllDriveMotors(0.5);
-        driveUntilLineOrDistance(0.5, 6);
-        driveDistance(0.5, 0.5); //to top it off
-
-        setAllDriveMotors(0);
-        //turn -90 degrees the first 85 degrees at 0.5 speed, and to not overshoot the last 5 degrees would be 0.1 speed
-        turnDegrees(0.5, -initialTurnDegrees);
-        turnDegrees(0.1, -finalTurnDegrees);
-    }
-
     /***
      *
      * waitForTick implements a periodic delay. However, this acts like a metronome with a regular
@@ -363,62 +168,6 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
 
         // Reset the cycle clock for the next pass.
         time.reset();
-    }
-
-    public Color detectLeft() {
-
-        Color left = Color.UNKNOWN;
-
-        jDetector.enable();
-
-        JewelDetector.JewelOrder currentOrder = jDetector.getCurrentOrder();
-
-        if(robot.colorSensor.red() != robot.colorSensor.blue()) {
-            if(robot.colorSensor.red() > robot.colorSensor.blue()) {
-                left = Color.RED;
-            } else {
-                left = Color.BLUE;
-            }
-        } else if(currentOrder == UNKNOWN) {
-            currentOrder = jDetector.getLastOrder();
-            if(currentOrder == RED_BLUE) {
-                left = Color.RED;
-            } else {
-                left = Color.BLUE;
-            }
-        }
-
-        jDetector.disable();
-
-        return left;
-    }
-
-    public void knockJewelSide(Side side) {
-        //knock jewel
-        if(side == Side.LEFT) {
-            setDriveMotors(0.5,0.5,0.5,0.5);
-        } else if(side == Side.RIGHT) {
-            setDriveMotors(-0.5,-0.5,-0.5,-0.5);
-        }
-
-        delay(250);
-
-        //stop and lift arm
-        setAllDriveMotors(0);
-        robot.jewelArm.setPosition(0.5);
-
-        delay(500);
-
-        //go back
-        if(side == Side.LEFT) {
-            setDriveMotors(-0.5,-0.5,-0.5,-0.5);
-        } else if(side == Side.RIGHT) {
-            setDriveMotors(0.5,0.5,0.5,0.5);
-        }
-
-        delay(250);
-
-        setAllDriveMotors(0);
     }
 
     public Side detectImageSide() {
@@ -457,41 +206,6 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
 
     public void driveToPos(Side pos) {
         //aligning, etc.
-    }
-
-    public void parkSafe(boolean leftPos) {
-        cDetector.enable();
-
-        setAllDriveMotors(0.5);
-        delay(3000);
-
-        setDriveMotors(-0.5,0.5,0.5,-0.5);
-
-        for(int i = 0; i <= 5000 || !cDetector.isCryptoBoxDetected() && !isStopRequested(); i++ ) {
-            delay(1);
-        }
-
-        cryptoAlign();
-
-        if(!leftPos) {
-            setAllDriveMotors(0.5);
-            delay(3000);
-            setAllDriveMotors(0);
-        }
-
-        cDetector.disable();
-    }
-
-    public void cryptoAlign() {
-        if (cDetector.getCryptoBoxCenterPosition() > 175) {
-            setDriveMotors(-0.5, 0.5, 0.5, -0.5);
-        } else {
-            setDriveMotors(0.5, -0.5, -0.5, 0.5);
-        }
-
-        delay(250);
-
-        setAllDriveMotors(0);
     }
 
     public void parkSimple(Color teamColor) {
