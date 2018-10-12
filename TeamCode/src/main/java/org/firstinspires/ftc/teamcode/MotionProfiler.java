@@ -10,13 +10,19 @@ public class MotionProfiler {
     private double t1;
     private double t2;
     private double t3;
+    private boolean running = false;
+    private double ticksPerFoot;
 
-    public MotionProfiler(double maxSpeed, double acceleration) {
+    public MotionProfiler(double maxSpeed, double acceleration, double ticksPerFoot) {
         this.maxSpeed = maxSpeed;
         this.acceleration = acceleration;
+        this.ticksPerFoot = ticksPerFoot;
     }
 
-    public void setDistance(double distance) {
+    public void start(double distance) {
+        //convert feet to ticks
+        distance *= ticksPerFoot;
+
         double accelerationTime = maxSpeed / acceleration;
         double accelerationDistance = 1/2 * acceleration * Math.pow(accelerationTime, 2);
 
@@ -32,10 +38,7 @@ public class MotionProfiler {
         t1 = accelerationTime;
         t2 = accelerationTime + middleTime;
         t3 = totalTime;
-    }
-
-    public void start() {
-
+        running = true;
     }
 
     public double getSpeed(double time) {
@@ -46,11 +49,18 @@ public class MotionProfiler {
             vel = maxSpeed;
         }else if(time < t3){
             vel = -acceleration * (time - t3);
+        }else{
+            stop();
+            return 0;
         }
-        return vel;
+        return vel/maxSpeed;
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 
     public void stop() {
-
+        running = false;
     }
 }

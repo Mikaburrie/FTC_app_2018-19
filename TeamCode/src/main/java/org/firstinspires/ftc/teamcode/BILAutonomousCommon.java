@@ -23,7 +23,7 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
     BILVuforiaCommon helper = new BILVuforiaCommon();
     VuforiaTrackables imageTargets;
     VuforiaTrackable imageTemplate;
-
+    //speed is in encoder ticks per second
 
     public enum Color {
         RED, BLUE, UNKNOWN
@@ -33,9 +33,13 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
         LEFT, MIDDLE, RIGHT, UNKNOWN
     }
 
-    public final static int ticksPerRotation = 1440;
-    public final static double wheelCircumference = (4 * Math.PI)/12; //circumference in feet
+    public final static int ticksPerRotation = 538;
+    public final static double wheelDiameter = 4;
+    public final static double wheelCircumference = (wheelDiameter * Math.PI); //circumference in feet
+    public final static double ticksPerFoot = ticksPerRotation/wheelCircumference;
     public final static int driveTimeScalar = 3;
+
+    MotionProfiler profiler = new MotionProfiler(2500, 1250, ticksPerFoot);
 
     public void loadObjects() {
         this.vuforia = helper.initVuforia(false, 4);
@@ -44,7 +48,8 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
         imageTemplate.setName("VuMarkTemplate");
     }
 
-    public boolean isRunning() {
+    public boolean opModeRunning() {
+        idle();
         return opModeIsActive() && !isStopRequested();
     }
 
@@ -83,44 +88,17 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
     }
 
     /**
-     * @param power The speed to drive at.
      * @param distance How far the robot should travel (in feet).
      */
-    public void driveDistance(double power, double distance) throws InterruptedException {
-        //reset encoders just to be safe
-        setAllMotorModes(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        //convert input distance in feet to motor ticks
-        int ticks = (int)Math.round(Math.abs(distance/wheelCircumference) * ticksPerRotation);
-
-        //set the target positions for all motors
-        robot.motorFrontLeft.setTargetPosition(ticks);
-        robot.motorBackLeft.setTargetPosition(ticks);
-        robot.motorFrontRight.setTargetPosition(ticks);
-        robot.motorBackRight.setTargetPosition(ticks);
-
-        //tells motors to run until position is reached
-        setAllMotorModes(DcMotor.RunMode.RUN_TO_POSITION);
-
-        //starts the motors
-        setAllDriveMotors(power);
-
-        //waits for motors to finish moving
+    public void driveDistance(double distance) throws InterruptedException {
         time.reset();
-        while(getAllMotorsBusy()) {
-            //if robot has been driving longer then we think necessary we will automatically stop and move on
-            if(time.milliseconds() > Math.abs(ticks/power/driveTimeScalar)) {
-                break;
-            }
-            idle();
+        profiler.start(distance);
+        while(opModeRunning() && profiler.isRunning()) {
+            setAllDriveMotors(profiler.getSpeed(time.seconds()));
         }
 
         //set all motors to 0
         setAllDriveMotors(0);
-
-        //resets encoder values and changes mode back to default
-        setAllMotorModes(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setAllMotorModes(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void driveByTime(double power, int milliseconds) throws InterruptedException {
