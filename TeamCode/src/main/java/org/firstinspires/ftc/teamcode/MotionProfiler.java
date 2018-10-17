@@ -11,17 +11,13 @@ public class MotionProfiler {
     private double t2;
     private double t3;
     private boolean running = false;
-    private double ticksPerFoot;
 
-    public MotionProfiler(double maxSpeed, double acceleration, double ticksPerFoot) {
+    public MotionProfiler(double maxSpeed, double acceleration) {
         this.maxSpeed = maxSpeed;
         this.acceleration = acceleration;
-        this.ticksPerFoot = ticksPerFoot;
     }
 
     public void start(double distance) {
-        //convert feet to ticks
-        distance *= ticksPerFoot;
 
         double accelerationTime = maxSpeed / acceleration;
         double accelerationDistance = 1/2 * acceleration * Math.pow(accelerationTime, 2);

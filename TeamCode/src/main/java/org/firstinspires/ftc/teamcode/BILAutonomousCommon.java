@@ -35,11 +35,12 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
 
     public final static int ticksPerRotation = 538;
     public final static double wheelDiameter = 4;
-    public final static double wheelCircumference = (wheelDiameter * Math.PI); //circumference in feet
+    public final static double wheelCircumference = (wheelDiameter * Math.PI)/12; //circumference in feet
     public final static double ticksPerFoot = ticksPerRotation/wheelCircumference;
     public final static int driveTimeScalar = 3;
+    public final static double maxSpeed = 2500/ticksPerFoot;
 
-    MotionProfiler profiler = new MotionProfiler(2500, 1250, ticksPerFoot);
+    MotionProfiler profiler = new MotionProfiler(maxSpeed, maxSpeed/2);
 
     public void loadObjects() {
         this.vuforia = helper.initVuforia(false, 4);
@@ -99,6 +100,21 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
 
         //set all motors to 0
         setAllDriveMotors(0);
+
+        /*setAllMotorModes(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setAllMotorModes(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.motorFrontLeft.setTargetPosition((int)Math.round(distance * ticksPerFoot));
+        robot.motorFrontRight.setTargetPosition((int)Math.round(distance * ticksPerFoot));
+        robot.motorBackLeft.setTargetPosition((int)Math.round(distance * ticksPerFoot));
+        robot.motorBackRight.setTargetPosition((int)Math.round(distance * ticksPerFoot));
+        telemetry.addData("TPF", String.format("%f", ticksPerFoot));
+        telemetry.update();
+
+        setAllDriveMotors(0.5);
+        while(getAllMotorsBusy() && opModeRunning()){
+
+        }
+        setAllDriveMotors(0);*/
     }
 
     public void driveByTime(double power, int milliseconds) throws InterruptedException {
