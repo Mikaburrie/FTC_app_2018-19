@@ -40,7 +40,7 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
     public final static int driveTimeScalar = 3;
     public final static double maxSpeed = 2500/ticksPerFoot;
 
-    MotionProfiler profiler = new MotionProfiler(maxSpeed, maxSpeed/2);
+    MotionProfiler profiler = new MotionProfiler(maxSpeed, maxSpeed);
 
     public void loadObjects() {
         this.vuforia = helper.initVuforia(false, 4);
@@ -96,6 +96,8 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
         profiler.start(distance);
         while(opModeRunning() && profiler.isRunning()) {
             setAllDriveMotors(profiler.getSpeed(time.seconds()));
+            telemetry.addData("speed", String.format("%f %f", profiler.getSpeed(time.seconds()), time.seconds()));
+            telemetry.update();
         }
 
         //set all motors to 0
