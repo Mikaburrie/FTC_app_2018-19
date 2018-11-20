@@ -15,11 +15,7 @@ public class BILTeleOpJoystick {
     double scaleInput(double dVal, double expo) {
 
         //output
-        double scaleD = Math.pow (dVal, expo);
-
-        //check for === signs
-        if((dVal < 0)!= (scaleD < 0))
-                scaleD = -scaleD;
+        double scaleD = Math.pow(dVal, expo) * (dVal < 0 ? -1 : 1);
 
         //return
         return scaleD;

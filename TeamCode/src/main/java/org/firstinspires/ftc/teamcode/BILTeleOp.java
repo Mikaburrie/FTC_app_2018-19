@@ -67,13 +67,13 @@ public class BILTeleOp extends OpMode {
 		setMotorSpeeds();
 
 		//telemetry.addData("Text", "*** Robot Data***");
-		telemetry.addData("F/R", "direction:  " + String.format("%b",directionRobot ));
-		telemetry.addData("FrontLeft Power", String.format("%.2f", frontLeft));
-		telemetry.addData("BackLeft Power", String.format("%.2f", backLeft));
-		telemetry.addData("FrontRight Power", String.format("%.2f", frontRight));
-		telemetry.addData("BackRight Power", String.format("%.2f", backRight));
-		telemetry.addData("lift Power", String.format("%.2f", liftSpeed));
-		telemetry.update();
+		//telemetry.addData("F/R", "direction:  " + String.format("%b",directionRobot ));
+		//telemetry.addData("FrontLeft Power", String.format("%.2f", frontLeft));
+		//telemetry.addData("BackLeft Power", String.format("%.2f", backLeft));
+		//telemetry.addData("FrontRight Power", String.format("%.2f", frontRight));
+		//telemetry.addData("BackRight Power", String.format("%.2f", backRight));
+		//telemetry.addData("lift Power", String.format("%.2f", liftSpeed));
+		//telemetry.update();
 	}
 
 	/*
@@ -117,10 +117,10 @@ public class BILTeleOp extends OpMode {
 	}
 
 	protected void getMeccanumMotorSpeeds(double leftX, double leftY, double rightX) {
-		frontRight = leftY - leftX - rightX;
-		backRight = leftY + leftX - rightX;
-		frontLeft = leftY + leftX + rightX;
-		backLeft = leftY - leftX + rightX;
+		frontRight = leftY - rightX; //leftY - leftX - rightX;
+		backRight = leftY - rightX;//leftY + leftX - rightX;
+		frontLeft = leftY + rightX;//leftY + leftX + rightX;
+		backLeft = leftY + rightX;//leftY - leftX + rightX;
 
 		frontRight = Range.clip(frontRight, -maxSpeed, maxSpeed);
 		backRight = Range.clip(backRight, -maxSpeed, maxSpeed);
@@ -136,10 +136,10 @@ public class BILTeleOp extends OpMode {
 		robot.motorBackLeft.setPower(backLeft);
 		robot.motorFrontRight.setPower(frontRight);
 		robot.motorBackRight.setPower(backRight);
-		robot.motorLift.setPower(liftSpeed);
-		robot.gatherRight.setPower(glyphGatherer);
-		robot.gatherLeft.setPower(glyphGatherer);
-		robot.motorLift.setPower(liftSpeed);
+		//robot.motorLift.setPower(liftSpeed);
+		//robot.gatherRight.setPower(glyphGatherer);
+		//robot.gatherLeft.setPower(glyphGatherer);
+		//robot.motorLift.setPower(liftSpeed);
 	}
 
 	protected void getGamepadInputs() {
