@@ -17,7 +17,7 @@ public class MotionProfiler {
         this.acceleration = acceleration;
     }
 
-    public void start(double distance) {
+    public String start(double distance) {
 
         double accelerationTime = maxSpeed / acceleration;
         double accelerationDistance = 1/2 * acceleration * Math.pow(accelerationTime, 2);
@@ -35,6 +35,7 @@ public class MotionProfiler {
         t2 = accelerationTime + middleTime;
         t3 = totalTime;
         running = true;
+        return String.format("%f %f %f", accelerationDistance, middleDistance, totalTime);
     }
 
     public double getSpeed(double time) {

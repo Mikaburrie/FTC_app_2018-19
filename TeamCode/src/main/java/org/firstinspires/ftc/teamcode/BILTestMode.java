@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import static org.firstinspires.ftc.teamcode.BILAutonomousCommon.Color.*;
 import static org.firstinspires.ftc.teamcode.BILAutonomousCommon.Side.*;
 
-@Autonomous(name="BIlTest")
+@Autonomous(name="BILTest")
 public class BILTestMode extends BILAutonomousCommon
 {
     @Override public void runOpMode() throws InterruptedException {
@@ -18,6 +18,6 @@ public class BILTestMode extends BILAutonomousCommon
 
         waitForStart();
 
-        driveDistance(1);
+        driveDistance(4);
     }
 }

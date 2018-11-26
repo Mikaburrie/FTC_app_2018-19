@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.internal.android.dx.dex.code.DalvCode;
 
 /**
  * Created on 1/7/2017 by Mika.
@@ -34,11 +35,12 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
     }
 
     public final static int ticksPerRotation = 538;
-    public final static double wheelDiameter = 4;
+    public final static double wheelDiameter = 4; //inches
     public final static double wheelCircumference = (wheelDiameter * Math.PI)/12; //circumference in feet
     public final static double ticksPerFoot = ticksPerRotation/wheelCircumference;
     public final static int driveTimeScalar = 3;
-    public final static double maxSpeed = 2500/ticksPerFoot;
+    public final static int ticksPerSecond = 2500;
+    public final static double maxSpeed = ticksPerSecond/ticksPerFoot;
 
     MotionProfiler profiler = new MotionProfiler(maxSpeed, maxSpeed);
 
@@ -92,12 +94,15 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
      * @param distance How far the robot should travel (in feet).
      */
     public void driveDistance(double distance) throws InterruptedException {
+        setAllMotorModes(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setAllMotorModes(DcMotor.RunMode.RUN_USING_ENCODER);
         time.reset();
-        profiler.start(distance);
-        while(opModeRunning() && profiler.isRunning()) {
+        telemetry.addData("Profile info:", profiler.start(distance));
+        telemetry.update();
+        while((opModeRunning() && profiler.isRunning()) && robot.motorBackLeft.getCurrentPosition() < ticksPerFoot * distance) {
             setAllDriveMotors(profiler.getSpeed(time.seconds()));
-            telemetry.addData("speed", String.format("%f %f", profiler.getSpeed(time.seconds()), time.seconds()));
-            telemetry.update();
+            //telemetry.addData("speed", String.format("%f %f", profiler.getSpeed(time.seconds()), time.seconds()));
+            //telemetry.update();
         }
 
         //set all motors to 0
