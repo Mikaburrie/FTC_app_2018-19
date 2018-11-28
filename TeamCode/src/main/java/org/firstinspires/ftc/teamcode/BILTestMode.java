@@ -18,6 +18,11 @@ public class BILTestMode extends BILAutonomousCommon
 
         waitForStart();
 
+        driveDistance(1);
+        delay(20000);
         driveDistance(4);
+        delay(20000);
+        driveDistance(10);
+        delay(2000);
     }
 }
