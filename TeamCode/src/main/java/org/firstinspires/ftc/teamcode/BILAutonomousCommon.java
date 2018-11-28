@@ -42,7 +42,7 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
     public final static int ticksPerSecond = 2500;
     public final static double maxSpeed = ticksPerSecond/ticksPerFoot;
 
-    MotionProfiler profiler = new MotionProfiler(maxSpeed, maxSpeed);
+    MotionProfiler profiler = new MotionProfiler(maxSpeed, maxSpeed/2);
 
     public void loadObjects() {
         this.vuforia = helper.initVuforia(false, 4);
@@ -104,6 +104,8 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
             //telemetry.addData("speed", String.format("%f %f", profiler.getSpeed(time.seconds()), time.seconds()));
             //telemetry.update();
         }
+        telemetry.addData("Time driving", time.seconds());
+        telemetry.update();
 
         //set all motors to 0
         setAllDriveMotors(0);
