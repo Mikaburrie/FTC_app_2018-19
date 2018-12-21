@@ -97,7 +97,7 @@ public abstract class TeleopCommon extends OpMode {
 
     public void setMotorSpeed(DcMotor motor, double value, double min, double max, double exponent, double deadband) {
         double scaledValue = Math.pow(Math.abs(value) < deadband ? 0 : value, exponent) * (value < 0 ? -1 : 1);
-        setMotorSpeed(motor, Range.clip(scaledValue, min, max));
+        setMotorSpeed(motor, Range.scale(Range.clip(scaledValue, -1, 1), -1, 1, min, max));
     }
 
     public void setServoPosition(Servo servo, double value) {
