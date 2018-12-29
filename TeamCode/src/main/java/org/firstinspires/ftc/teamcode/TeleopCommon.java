@@ -18,6 +18,8 @@ public abstract class TeleopCommon extends OpMode {
     private double joyLY;
     private double joyRX;
     private double joyRY;
+    private double maxAcceleration;
+    private ElapsedTime updateTime = new ElapsedTime();
 
     public enum DriveMode {
         TANK,
@@ -40,8 +42,12 @@ public abstract class TeleopCommon extends OpMode {
         Br = backRight;
     }
 
+    public void setMaxAcceleration(double max){
+        maxAcceleration = max;
+    }
+
     public void updateDriving() {
-        updateDriving(1.0, 2, 0.5);
+        updateDriving(1.0, 2, 0.05);
     }
 
     public void updateDriving(double maxSpeed) {
@@ -64,6 +70,7 @@ public abstract class TeleopCommon extends OpMode {
                 updateMeccanum(maxSpeed, exponent, deadband);
             break;
         }
+        updateTime.reset();
     }
 
     private void updateTank(double maxSpeed, double exponent, double deadband) {
@@ -74,10 +81,10 @@ public abstract class TeleopCommon extends OpMode {
     }
 
     private void updateGTA(double maxSpeed, double exponent, double deadband) {
-        setMotorSpeed(Fl, joyLY + joyRX, -maxSpeed, maxSpeed, exponent, deadband);
-        setMotorSpeed(Fr, joyLY - joyRX, -maxSpeed, maxSpeed, exponent, deadband);
-        setMotorSpeed(Bl, joyLY + joyRX, -maxSpeed, maxSpeed, exponent, deadband);
-        setMotorSpeed(Br, joyLY - joyRX, -maxSpeed, maxSpeed, exponent, deadband);
+        setMotorSpeed(Fl, joyLY - joyRX, -maxSpeed, maxSpeed, exponent, deadband);
+        setMotorSpeed(Fr, joyLY + joyRX, -maxSpeed, maxSpeed, exponent, deadband);
+        setMotorSpeed(Bl, joyLY - joyRX, -maxSpeed, maxSpeed, exponent, deadband);
+        setMotorSpeed(Br, joyLY + joyRX, -maxSpeed, maxSpeed, exponent, deadband);
     }
 
     private void updateMeccanum(double maxSpeed, double exponent, double deadband) {
@@ -88,6 +95,10 @@ public abstract class TeleopCommon extends OpMode {
     }
 
     public void setMotorSpeed(DcMotor motor, double value) {
+        double diff = value - motor.getPower();
+        if(Math.abs(diff) > maxAcceleration){
+            value = (diff < 0 ? -maxAcceleration : maxAcceleration) + motor.getPower();
+        }
         motor.setPower(value);
     }
 
@@ -106,5 +117,12 @@ public abstract class TeleopCommon extends OpMode {
 
     public void setServoPosition(Servo servo, double value, double min, double max) {
         setServoPosition(servo, Range.clip(value, min, max));
+    }
+
+    public void displayJoystickData(){
+        telemetry.addData("Left X", String.format("%f", joyLX));
+        telemetry.addData("Left Y", String.format("%f", joyLY));
+        telemetry.addData("Right X", String.format("%f", joyRX));
+        telemetry.addData("Right Y", String.format("%f", joyRY));
     }
 }

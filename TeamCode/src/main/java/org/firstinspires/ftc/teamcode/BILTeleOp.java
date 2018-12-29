@@ -12,6 +12,7 @@ public class BILTeleOp extends TeleopCommon {
 		//Initializes all robot hardware parts
 		robot.init(hardwareMap);
 		setDriveMode(DriveMode.GTA);
+		setMaxAcceleration(0.1);
 		setDrivingMotors(robot.motorFrontLeft, robot.motorFrontRight, robot.motorBackLeft, robot.motorBackRight);
 	}
 
