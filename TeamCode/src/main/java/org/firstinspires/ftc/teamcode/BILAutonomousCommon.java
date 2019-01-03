@@ -109,21 +109,6 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
 
         //set all motors to 0
         setAllDriveMotors(0);
-
-        /*setAllMotorModes(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setAllMotorModes(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.motorFrontLeft.setTargetPosition((int)Math.round(distance * ticksPerFoot));
-        robot.motorFrontRight.setTargetPosition((int)Math.round(distance * ticksPerFoot));
-        robot.motorBackLeft.setTargetPosition((int)Math.round(distance * ticksPerFoot));
-        robot.motorBackRight.setTargetPosition((int)Math.round(distance * ticksPerFoot));
-        telemetry.addData("TPF", String.format("%f", ticksPerFoot));
-        telemetry.update();
-
-        setAllDriveMotors(0.5);
-        while(getAllMotorsBusy() && opModeRunning()){
-
-        }
-        setAllDriveMotors(0);*/
     }
 
     public void driveByTime(double power, int milliseconds) throws InterruptedException {
