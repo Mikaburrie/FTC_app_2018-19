@@ -64,6 +64,8 @@ public class BILRobotHardware {
         servoRelease = hwMap.servo.get("Release_Servo");
         servoRedGrab = hwMap.servo.get("Red_Grab_Servo");
         servoBlueGrab = hwMap.servo.get("Blue_Grab_Servo");
+
+        initIMU();
     }
 
     private void initIMU() {
