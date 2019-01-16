@@ -5,6 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @TeleOp(name="TeleOp", group="BIL")
 public class BILTeleOp extends TeleopCommon {
 
+	boolean xPressed;
+	boolean bPressed;
+
 	public BILTeleOp() {}
 
 	@Override
@@ -23,10 +26,22 @@ public class BILTeleOp extends TeleopCommon {
 		setMotorSpeed(robot.motorLift, (gamepad1.dpad_up ? 1.0 : 0.0) - (gamepad1.dpad_down ? 1.0 : 0.0));
 		setMotorSpeed(robot.motorArm, (gamepad1.dpad_left ? 1.0 : 0.0) - (gamepad1.dpad_right ? 1.0 : 0.0));
 		updateDriving();
-		robot.servoDeploy.setPosition(robot.servoDeploy.getPosition() + (gamepad1.a ? 0.01 : 0) - (gamepad1.b ? 0.01 : 0));
-		robot.servoRelease.setPosition(robot.servoRelease.getPosition() + (gamepad1.x ? 0.01 : 0) - (gamepad1.y ? 0.01 : 0));
-		robot.servoRedGrab.setPosition(robot.servoRedGrab.getPosition() + (gamepad1.right_trigger > 0.5 ? 0.01 : 0) - (gamepad1.right_bumper ? 0.01 : 0));
-		robot.servoBlueGrab.setPosition(robot.servoBlueGrab.getPosition() + (gamepad1.left_trigger > 0.5 ? 0.01 : 0) - (gamepad1.left_bumper ? 0.01 : 0));
+
+		if(gamepad1.x && !xPressed){
+			robot.servoBlueGrab.setPosition(robot.servoBlueGrab.getPosition() > 0.5 ? 0.0 : 1.0);
+			xPressed = true;
+		}else if(!gamepad1.x){
+			xPressed = false;
+		}
+
+		if(gamepad1.b && !bPressed){
+			robot.servoRedGrab.setPosition(robot.servoRedGrab.getPosition() > 0.5 ? 0.0 : 1.0);
+			bPressed = true;
+		}else if(!gamepad1.b){
+			bPressed = false;
+		}
+
+		robot.servoDeploy.setPosition(robot.servoDeploy.getPosition() + (gamepad1.a ? 0.01 : 0) - (gamepad1.y ? 0.01 : 0));
 		telemetry.addData("Time passed", String.format("%f", time));
 		telemetry.addData("Lift speed", String.format("%f", robot.motorLift.getPower()));
 		telemetry.addData("Arm speed", String.format("%f", robot.motorArm.getPower()));

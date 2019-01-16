@@ -31,11 +31,15 @@ public class DirectionHandler {
         return currentDirection;
     }
 
-    public double driveAtTargetDirection(double speed) {
+    /**
+     * Returns an angle in degrees to specify the angle between the current heading and the target
+     * @return Returns an angle in degrees between from -180 to 180, negative goes to the left, positive to the right (left hand system)
+     */
+    public double getAngleToTarget(){
         double diff = (targetDirection - getDirection()) % 360.0;
         if(Math.abs(diff) > 180){
-            diff = (360 - Math.abs(diff)) * (diff < 0 ? -1 : 1);
+            diff = (360 - Math.abs(diff)) * (diff < 0 ? 1 : -1);
         }
-        return diff/90.0*speed;
+        return diff;
     }
 }

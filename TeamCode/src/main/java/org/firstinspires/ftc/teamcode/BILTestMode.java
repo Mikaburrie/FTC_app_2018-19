@@ -20,12 +20,12 @@ public class BILTestMode extends BILAutonomousCommon
 
         double speed = 0.3;
 
-        direction.setTargetDirection();
-        while(opModeIsActive()){
-            double correct = direction.driveAtTargetDirection(speed);
-            setDriveMotors(speed + correct, speed + correct, speed - correct, speed - correct);
-            telemetry.addData("Dir: ", String.format("%f", direction.getDirection()));
-            telemetry.update();
+        while(opModeIsActive()) {
+            if (gamepad1.x) {
+                turnAngle(-90, speed);
+            } else if (gamepad1.b) {
+                turnAngle(90, speed);
+            }
         }
     }
 }

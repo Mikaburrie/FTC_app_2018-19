@@ -106,6 +106,18 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
         setAllDriveMotors(0);
     }
 
+    public void turnAngle(double angle, double speed) {
+        direction.setTargetDirection(direction.getDirection() - angle);
+        double offset;
+        while(opModeIsActive() && Math.abs(offset = direction.getAngleToTarget()) > 2){
+            double power = Math.max(offset/180 * speed, 0.1);
+            setDriveMotors(power, power, -power, -power);
+            telemetry.addData("", String.format("%f %f", offset, power));
+            telemetry.update();
+        }
+        setAllDriveMotors(0);
+    }
+
     public void driveByTime(double power, int milliseconds) throws InterruptedException {
         time.reset();
         setAllDriveMotors(power);

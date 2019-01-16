@@ -83,16 +83,16 @@ public abstract class TeleopCommon extends OpMode {
 
     private void updateTank(double maxSpeed, double exponent, double deadband) {
         setMotorSpeed(Fl, joyLY, -maxSpeed, maxSpeed, exponent, deadband);
+        Bl.setPower(Fl.getPower());
         setMotorSpeed(Fr, joyRY, -maxSpeed, maxSpeed, exponent, deadband);
-        setMotorSpeed(Bl, joyLY, -maxSpeed, maxSpeed, exponent, deadband);
-        setMotorSpeed(Br, joyRY, -maxSpeed, maxSpeed, exponent, deadband);
+        Br.setPower(Fr.getPower());
     }
 
     private void updateGTA(double maxSpeed, double exponent, double deadband) {
         setMotorSpeed(Fl, joyLY - joyRX, -maxSpeed, maxSpeed, exponent, deadband);
+        Bl.setPower(Fl.getPower());
         setMotorSpeed(Fr, joyLY + joyRX, -maxSpeed, maxSpeed, exponent, deadband);
-        setMotorSpeed(Bl, joyLY - joyRX, -maxSpeed, maxSpeed, exponent, deadband);
-        setMotorSpeed(Br, joyLY + joyRX, -maxSpeed, maxSpeed, exponent, deadband);
+        Br.setPower(Fr.getPower());
     }
 
     private void updateMeccanum(double maxSpeed, double exponent, double deadband) {
