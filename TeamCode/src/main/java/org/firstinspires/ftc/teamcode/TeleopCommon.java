@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.util.Range;
 
 public abstract class TeleopCommon extends OpMode {
     public BILRobotHardware robot = new BILRobotHardware();
-    public ElapsedTime time = new ElapsedTime();
     private DriveMode driveMode;
     private DcMotor Fl;
     private DcMotor Fr;
@@ -19,7 +18,9 @@ public abstract class TeleopCommon extends OpMode {
     private double joyRX;
     private double joyRY;
     private double maxAcceleration;
+    private double maxDeceleration;
     private ElapsedTime updateTime = new ElapsedTime();
+    private double deltaTime = 0;
 
     public enum DriveMode {
         TANK,
@@ -42,8 +43,16 @@ public abstract class TeleopCommon extends OpMode {
         Br = backRight;
     }
 
-    public void setMaxAcceleration(double max){
+    public void setMaxAcceleration(double max) {
         maxAcceleration = max;
+    }
+    public void setMaxDeceleration(double max) {
+        maxDeceleration = max;
+    }
+
+    public void updateTiming() {
+        deltaTime = updateTime.seconds();
+        updateTime.reset();
     }
 
     public void updateDriving() {
@@ -70,7 +79,6 @@ public abstract class TeleopCommon extends OpMode {
                 updateMeccanum(maxSpeed, exponent, deadband);
             break;
         }
-        updateTime.reset();
     }
 
     private void updateTank(double maxSpeed, double exponent, double deadband) {
@@ -96,14 +104,17 @@ public abstract class TeleopCommon extends OpMode {
 
     public void setMotorSpeed(DcMotor motor, double value) {
         double diff = value - motor.getPower();
-        if(Math.abs(diff) > maxAcceleration){
-            value = (diff < 0 ? -maxAcceleration : maxAcceleration) + motor.getPower();
+        if(Math.abs(value) > Math.abs(motor.getPower())){ //accelerating
+            if(Math.abs(diff) > maxAcceleration * deltaTime){
+                value = (diff < 0 ? -maxAcceleration : maxAcceleration) * deltaTime + motor.getPower();
+            }
+        }else{ //decelerate
+            if(Math.abs(diff) > maxDeceleration * updateTime.seconds()){
+                value = (diff < 0 ? -maxDeceleration : maxDeceleration) * deltaTime + motor.getPower();
+            }
         }
-        motor.setPower(value);
-    }
 
-    public void setMotorSpeed(DcMotor motor, double value, double min, double max) {
-        setMotorSpeed(motor, Range.clip(value, min, max));
+        motor.setPower(value);
     }
 
     public void setMotorSpeed(DcMotor motor, double value, double min, double max, double exponent, double deadband) {
@@ -124,5 +135,12 @@ public abstract class TeleopCommon extends OpMode {
         telemetry.addData("Left Y", String.format("%f", joyLY));
         telemetry.addData("Right X", String.format("%f", joyRX));
         telemetry.addData("Right Y", String.format("%f", joyRY));
+    }
+
+    public void displaySpeedData(){
+        telemetry.addData("Front Left", String.format("%f", Fl.getPower()));
+        telemetry.addData("Back Left", String.format("%f", Bl.getPower()));
+        telemetry.addData("Front Right", String.format("%f", Fr.getPower()));
+        telemetry.addData("Back Right", String.format("%f", Br.getPower()));
     }
 }

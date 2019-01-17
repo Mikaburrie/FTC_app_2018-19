@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -18,13 +20,22 @@ public class BILRobotHardware {
     public DcMotor motorFrontLeft;
     public DcMotor motorBackLeft;
 
-    public ColorSensor colorSensor;
-    public Servo leftGrabber;
-    public Servo jewelArm;
-    public DcMotor gatherRight;
-    public DcMotor gatherLeft;
     public DcMotor motorLift;
-    public Servo liftPitch;
+    public DcMotor motorArm;
+    public Servo servoDeploy;
+    public double deployMin = 0.14;
+    public double deployMax = 0.84;
+    public Servo servoRelease;
+    public double releaseMin;
+    public double releaseMax;
+    public Servo servoRedGrab;
+    public double redGrabMin;
+    public double redGrabMax;
+    public Servo servoBlueGrab;
+    public double blueGrabMin;
+    public double blueGrabMax;
+
+    BNO055IMU imu;
 
     /* local OpMode members. */
     HardwareMap hwMap = null;
@@ -41,29 +52,44 @@ public class BILRobotHardware {
 
         //Define and Initialize Motors
         //Left_Front, Left_Back, Right_Front, Right_Back
-        motorFrontRight = hwMap.dcMotor.get("Front_Right");
-        motorBackRight = hwMap.dcMotor.get("Back_Right");
-        motorFrontLeft = hwMap.dcMotor.get("Front_Left");
-        motorBackLeft = hwMap.dcMotor.get("Back_Left");
-        motorFrontLeft.setDirection(DcMotor.Direction.REVERSE);
-        motorBackLeft.setDirection(DcMotor.Direction.REVERSE);
+        motorFrontRight = getMotor("Front_Right", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_USING_ENCODER);
+        motorBackRight = getMotor("Back_Right", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_USING_ENCODER);
+        motorFrontLeft = getMotor("Front_Left", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_USING_ENCODER);
+        motorBackLeft = getMotor("Back_Left", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_USING_ENCODER);
 
-        // Set all motors to zero power
-        motorFrontLeft.setPower(0);
-        motorBackLeft.setPower(0);
-        motorFrontRight.setPower(0);
-        motorBackRight.setPower(0);
+        motorLift = getMotor("Lift_Motor", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorArm = getMotor("Arm_Motor", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        // Set all motors to run with encoders.
-        motorFrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorBackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorFrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorBackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        servoDeploy = hwMap.servo.get("Deploy_Servo");
+        servoRelease = hwMap.servo.get("Release_Servo");
+        servoRedGrab = hwMap.servo.get("Red_Grab_Servo");
+        servoBlueGrab = hwMap.servo.get("Blue_Grab_Servo");
 
-        // Set all motors to brake when set to zero power.
-        motorFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        initIMU();
+    }
+
+    private void initIMU() {
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+        // and named "imu".
+        imu = hwMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+    }
+
+    private DcMotor getMotor(String name, DcMotor.Direction direction, DcMotor.RunMode mode) {
+        DcMotor motor = hwMap.dcMotor.get(name);
+        motor.setDirection(direction);
+        motor.setMode(mode);
+        motor.setPower(0);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        return motor;
     }
 }

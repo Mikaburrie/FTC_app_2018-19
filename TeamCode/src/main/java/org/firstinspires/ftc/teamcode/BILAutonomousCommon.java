@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -11,7 +10,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-import org.firstinspires.ftc.robotcore.internal.android.dx.dex.code.DalvCode;
 
 /**
  * Created on 1/7/2017 by Mika.
@@ -43,17 +41,18 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
     public final static double maxSpeed = ticksPerSecond/ticksPerFoot;
 
     MotionProfiler profiler = new MotionProfiler(maxSpeed, maxSpeed/2);
+    DirectionHandler direction;
+
+    public void initRobot() {
+        robot.init(hardwareMap);
+        direction = new DirectionHandler(robot.imu);
+    }
 
     public void loadObjects() {
         this.vuforia = helper.initVuforia(false, 4);
         imageTargets = helper.loadTargets("RelicVuMark");
         imageTemplate = imageTargets.get(0);
         imageTemplate.setName("VuMarkTemplate");
-    }
-
-    public boolean opModeRunning() {
-        idle();
-        return opModeIsActive() && !isStopRequested();
     }
 
     /**
@@ -99,13 +98,9 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
         time.reset();
         telemetry.addData("Profile info:", profiler.start(distance));
         telemetry.update();
-        while((opModeRunning() && profiler.isRunning()) && robot.motorBackLeft.getCurrentPosition() < ticksPerFoot * distance) {
+        while((opModeIsActive() && profiler.isRunning()) && robot.motorBackLeft.getCurrentPosition() < ticksPerFoot * distance) {
             setAllDriveMotors(profiler.getSpeed(time.seconds()));
-            //telemetry.addData("speed", String.format("%f %f", profiler.getSpeed(time.seconds()), time.seconds()));
-            //telemetry.update();
         }
-        telemetry.addData("Time driving", time.seconds());
-        telemetry.update();
 
         //set all motors to 0
         setAllDriveMotors(0);

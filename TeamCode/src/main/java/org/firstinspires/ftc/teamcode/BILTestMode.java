@@ -14,15 +14,18 @@ public class BILTestMode extends BILAutonomousCommon
 {
     @Override public void runOpMode() throws InterruptedException {
 
-        robot.init(hardwareMap);
+        initRobot();
 
         waitForStart();
 
-        driveDistance(1);
-        delay(20000);
-        driveDistance(4);
-        delay(20000);
-        driveDistance(10);
-        delay(2000);
+        double speed = 0.3;
+
+        direction.setTargetDirection();
+        while(opModeIsActive()){
+            double correct = direction.driveAtTargetDirection(speed);
+            setDriveMotors(speed + correct, speed + correct, speed - correct, speed - correct);
+            telemetry.addData("Dir: ", String.format("%f", direction.getDirection()));
+            telemetry.update();
+        }
     }
 }
