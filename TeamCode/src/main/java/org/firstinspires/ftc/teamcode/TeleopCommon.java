@@ -109,7 +109,7 @@ public abstract class TeleopCommon extends OpMode {
                 value = (diff < 0 ? -maxAcceleration : maxAcceleration) * deltaTime + motor.getPower();
             }
         }else{ //decelerate
-            if(Math.abs(diff) > maxDeceleration * updateTime.seconds()){
+            if(Math.abs(diff) > maxDeceleration * deltaTime){
                 value = (diff < 0 ? -maxDeceleration : maxDeceleration) * deltaTime + motor.getPower();
             }
         }

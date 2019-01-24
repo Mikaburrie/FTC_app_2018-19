@@ -27,6 +27,14 @@ public class BILTeleOp extends TeleopCommon {
 		setMotorSpeed(robot.motorArm, (gamepad1.dpad_left ? 1.0 : 0.0) - (gamepad1.dpad_right ? 1.0 : 0.0));
 		updateDriving();
 
+		if(gamepad1.dpad_up && robot.switchTop.getState()){
+            setMotorSpeed(robot.motorLift, 0.5);
+        }else if(gamepad1.dpad_down && robot.switchBottom.getState()){
+		    setMotorSpeed(robot.motorLift, -0.5);
+        }else{
+		    setMotorSpeed(robot.motorLift, 0);
+        }
+
 		if(gamepad1.x && !xPressed){
 			robot.servoBlueGrab.setPosition(robot.servoBlueGrab.getPosition() > 0.5 ? 0.0 : 1.0);
 			xPressed = true;

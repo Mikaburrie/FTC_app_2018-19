@@ -20,12 +20,25 @@ public class BILTestMode extends BILAutonomousCommon
 
         double speed = 0.3;
 
-        while(opModeIsActive()) {
+        /*while(opModeIsActive()) {
             if (gamepad1.x) {
-                turnAngle(-90, speed);
+                turnAngle(- 90, speed);
             } else if (gamepad1.b) {
                 turnAngle(90, speed);
             }
+        }*/
+
+        while(opModeIsActive() && robot.switchTop.getState()){
+            robot.motorLift.setPower(0.2);
         }
+        robot.motorLift.setPower(0);
+
+        driveDistance(-0.5);
+
+        while(opModeIsActive() && robot.switchBottom.getState()){
+            robot.motorLift.setPower(-0.3);
+        }
+        robot.motorLift.setPower(0);
+
     }
 }

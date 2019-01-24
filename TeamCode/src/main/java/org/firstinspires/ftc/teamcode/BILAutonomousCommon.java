@@ -93,13 +93,14 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
      * @param distance How far the robot should travel (in feet).
      */
     public void driveDistance(double distance) throws InterruptedException {
+        double direction = (distance < 0.0 ? -1.0 : 1.0);
         setAllMotorModes(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         setAllMotorModes(DcMotor.RunMode.RUN_USING_ENCODER);
         time.reset();
-        telemetry.addData("Profile info:", profiler.start(distance));
+        telemetry.addData("Profile info:", profiler.start(Math.abs(distance)));
         telemetry.update();
-        while((opModeIsActive() && profiler.isRunning()) && robot.motorBackLeft.getCurrentPosition() < ticksPerFoot * distance) {
-            setAllDriveMotors(profiler.getSpeed(time.seconds()));
+        while((opModeIsActive() && profiler.isRunning()) && Math.abs(robot.motorBackLeft.getCurrentPosition()) < Math.abs(ticksPerFoot * distance)) {
+            setAllDriveMotors(profiler.getSpeed(time.seconds()) * direction);
         }
 
         //set all motors to 0

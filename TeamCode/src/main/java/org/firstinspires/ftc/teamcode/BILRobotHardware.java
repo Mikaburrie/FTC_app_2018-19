@@ -5,6 +5,7 @@ import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LightSensor;
@@ -35,6 +36,9 @@ public class BILRobotHardware {
     public double blueGrabMin;
     public double blueGrabMax;
 
+    public DigitalChannel switchBottom;
+    public DigitalChannel switchTop;
+
     BNO055IMU imu;
 
     /* local OpMode members. */
@@ -58,12 +62,17 @@ public class BILRobotHardware {
         motorBackLeft = getMotor("Back_Left", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_USING_ENCODER);
 
         motorLift = getMotor("Lift_Motor", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorArm = getMotor("Arm_Motor", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorArm = getMotor("Arm_Motor", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_USING_ENCODER);
 
         servoDeploy = hwMap.servo.get("Deploy_Servo");
         servoRelease = hwMap.servo.get("Release_Servo");
         servoRedGrab = hwMap.servo.get("Red_Grab_Servo");
         servoBlueGrab = hwMap.servo.get("Blue_Grab_Servo");
+
+        switchBottom = hwMap.digitalChannel.get("Limit_Bottom");
+        switchTop = hwMap.digitalChannel.get("Limit_Top");
+        switchBottom.setMode(DigitalChannel.Mode.INPUT);
+        switchTop.setMode(DigitalChannel.Mode.INPUT);
 
         initIMU();
     }
