@@ -162,3 +162,9 @@ FtcRobotController/FtcRobotController.iml
 FtcRobotController/build/outputs/logs/manifest-merger-debug-report.txt
 FtcRobotController/build/intermediates/incremental/packageDebugResources/merger.xml
 FtcRobotController/build/intermediates/incremental/packageDebugResources/compile-file-map.properties
+TeamCode/TeamCode.iml
+gradle/wrapper/gradle-wrapper.properties
+FtcRobotController/FtcRobotController.iml
+FTC_app_2018-19.iml
+build.gradle
+build.gradle

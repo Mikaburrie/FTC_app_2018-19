@@ -38,6 +38,7 @@ public class BILRobotHardware {
 
     public DigitalChannel switchBottom;
     public DigitalChannel switchTop;
+    public DigitalChannel switchArm;
 
     BNO055IMU imu;
 
@@ -71,8 +72,10 @@ public class BILRobotHardware {
 
         switchBottom = hwMap.digitalChannel.get("Limit_Bottom");
         switchTop = hwMap.digitalChannel.get("Limit_Top");
+        switchArm = hwMap.digitalChannel.get("Limit_Arm");
         switchBottom.setMode(DigitalChannel.Mode.INPUT);
         switchTop.setMode(DigitalChannel.Mode.INPUT);
+        switchArm.setMode(DigitalChannel.Mode.INPUT);
 
         initIMU();
     }
