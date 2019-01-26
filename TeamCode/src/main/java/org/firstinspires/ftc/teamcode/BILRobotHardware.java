@@ -77,6 +77,7 @@ public class BILRobotHardware {
         switchTop.setMode(DigitalChannel.Mode.INPUT);
         switchArm.setMode(DigitalChannel.Mode.INPUT);
 
+
         initIMU();
     }
 
