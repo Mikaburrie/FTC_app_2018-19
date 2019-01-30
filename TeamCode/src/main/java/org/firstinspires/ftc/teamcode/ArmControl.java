@@ -29,7 +29,7 @@ public class ArmControl {
     }
 
     public double getMotorSpeed(boolean lower, boolean raise,int encValue){
-        if(raise&&(!lower)&&limitSwitch.getState()) {//assuming limitSwitch is true when pressed
+        if(raise&&(!lower)&&!limitSwitch.getState()) {//assuming limitSwitch is false when pressed
             offset = encValueToDegrees(encValue);
             return 0;
         }else if(!(raise^lower)){
