@@ -63,7 +63,8 @@ public class BILRobotHardware {
         motorBackLeft = getMotor("Back_Left", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_USING_ENCODER);
 
         motorLift = getMotor("Lift_Motor", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorArm = getMotor("Arm_Motor", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_USING_ENCODER);
+        motorArm = getMotor("Arm_Motor", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_USING_ENCODER);
+        motorArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         servoDeploy = hwMap.servo.get("Deploy_Servo");
         servoRelease = hwMap.servo.get("Release_Servo");

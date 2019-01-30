@@ -19,15 +19,14 @@ public class BILTeleOp extends TeleopCommon {
 		setMaxAcceleration(1.0);
 		setMaxDeceleration(3.0);
 		setDrivingMotors(robot.motorFrontLeft, robot.motorFrontRight, robot.motorBackLeft, robot.motorBackRight);
-		arm = new ArmControl(robot.motorArm,robot.switchArm,0,0,0);
+		arm = new ArmControl(robot.switchArm);
 	}
 
 	@Override
 	public void loop() {
 		updateTiming();
 		setMotorSpeed(robot.motorLift, (gamepad1.dpad_up ? 1.0 : 0.0) - (gamepad1.dpad_down ? 1.0 : 0.0));
-		//setMotorSpeed(robot.motorArm, (gamepad1.dpad_left ? 1.0 : 0.0) - (gamepad1.dpad_right ? 1.0 : 0.0));
-		arm.updateArm((gamepad1.dpad_left ? 1.0 : 0.0) - (gamepad1.dpad_right ? 1.0 : 0.0));
+		robot.motorArm.setPower(arm.getMotorSpeed(gamepad1.dpad_left,gamepad1.dpad_right,robot.motorArm.getCurrentPosition()));
 		updateDriving();
 
 		if(gamepad1.dpad_up && robot.switchTop.getState()){
@@ -56,7 +55,7 @@ public class BILTeleOp extends TeleopCommon {
 		telemetry.addData("Time passed", String.format("%f", time));
 		telemetry.addData("Lift speed", String.format("%f", robot.motorLift.getPower()));
 		telemetry.addData("Arm speed", String.format("%f", robot.motorArm.getPower()));
-		telemetry.addData("Arm angle", String.format("%f", robot.motorArm.getPower()));
+		telemetry.addData("Arm angle", String.format("%f", arm.encValueToDegrees(robot.motorArm.getCurrentPosition())));
 		telemetry.addData("Deploy pos", String.format("%f", robot.servoDeploy.getPosition()));
 		telemetry.addData("Release pos", String.format("%f", robot.servoRelease.getPosition()));
 		telemetry.addData("RedGrab pos", String.format("%f", robot.servoRedGrab.getPosition()));
