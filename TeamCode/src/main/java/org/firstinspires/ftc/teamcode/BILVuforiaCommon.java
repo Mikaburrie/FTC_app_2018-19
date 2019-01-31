@@ -29,7 +29,7 @@ public class BILVuforiaCommon {
         //Sets up camera and initializes vuforia.
         VuforiaLocalizer.Parameters parameters;
         if(cameraPreview) {
-            parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
+            parameters = new VuforiaLocalizer.Parameters(/*R.id.cameraMonitorViewId*/);
         } else {
             parameters = new VuforiaLocalizer.Parameters();
         }
