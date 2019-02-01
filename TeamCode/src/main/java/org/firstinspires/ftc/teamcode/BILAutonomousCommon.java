@@ -18,10 +18,10 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
     public BILRobotHardware robot = new BILRobotHardware();
     public ElapsedTime time = new ElapsedTime();
 
-    VuforiaLocalizer vuforia;
+    /*VuforiaLocalizer vuforia;
     BILVuforiaCommon helper = new BILVuforiaCommon();
     VuforiaTrackables imageTargets;
-    VuforiaTrackable imageTemplate;
+    VuforiaTrackable imageTemplate;*/
     //speed is in encoder ticks per second
 
     public enum Color {
@@ -42,18 +42,20 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
 
     MotionProfiler profiler = new MotionProfiler(maxSpeed, maxSpeed/2);
     DirectionHandler direction;
+    Vision vision;
 
     public void initRobot() {
         robot.init(hardwareMap);
         direction = new DirectionHandler(robot.imu);
+        vision = new Vision(hardwareMap);
     }
 
-    public void loadObjects() {
+    /*public void loadObjects() {
         this.vuforia = helper.initVuforia(false, 4);
         imageTargets = helper.loadTargets("RelicVuMark");
         imageTemplate = imageTargets.get(0);
         imageTemplate.setName("VuMarkTemplate");
-    }
+    }*/
 
     /**
      * @param mode The run mode to set for all motors.
@@ -146,7 +148,7 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
         setDriveMotors(leftSpeed, leftSpeed, rightSpeed, rightSpeed);
     }
 
-    public void moveToImage(VuforiaTrackable target, BILVuforiaCommon helper) throws InterruptedException {
+    /*public void moveToImage(VuforiaTrackable target, BILVuforiaCommon helper) throws InterruptedException {
         boolean inFrontOfImage = false;
         while(!inFrontOfImage){
             VectorF translation = helper.getTargetTranslation(target);
@@ -165,7 +167,7 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
             telemetry.update();
             idle();
         }
-    }
+    }*/
 
     /***
      *
@@ -188,7 +190,7 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
         time.reset();
     }
 
-    public Side detectImageSide() {
+   /* public Side detectImageSide() {
         time.reset();
         RelicRecoveryVuMark position = RelicRecoveryVuMark.UNKNOWN;
 
@@ -220,7 +222,7 @@ public abstract class BILAutonomousCommon extends LinearOpMode {
         }else{
             return Side.RIGHT;
         }
-    }
+    }*/
 
     public void driveToPos(Side pos) {
         //aligning, etc.
